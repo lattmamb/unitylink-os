@@ -1,0 +1,1223 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content="UnityLink Platform - Revolutionary autonomous vehicle subscription service transforming rural Illinois transportation"/>
+    <title>UnityLink Platform - Autonomous Vehicle Subscriptions &amp; Community Investment</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=Space+Grotesk:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.0.12/typed.min.js"></script>
+    <script src="https://unpkg.com/splitting@1.0.6/dist/splitting.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/splitting@1.0.6/dist/splitting.css"/>
+    
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #00e0ff 0%, #35f2db 100%);
+            --secondary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --dark-bg: #0B0B0F;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --accent-blue: #00e0ff;
+            --accent-green: #35f2db;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Navigation */
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(11, 11, 15, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2.5rem;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-blue);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary-gradient);
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .cta-button {
+            background: var(--primary-gradient);
+            color: #000;
+            padding: 0.8rem 2rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 224, 255, 0.3);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            background: radial-gradient(ellipse at center, rgba(0, 224, 255, 0.1) 0%, transparent 70%);
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('resources/hero-vehicle.png') center/cover no-repeat;
+            opacity: 0.3;
+            z-index: -1;
+        }
+
+        .hero-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            padding-top: 6rem;
+        }
+
+        .hero-text h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .gradient-text {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-text p {
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            margin-bottom: 2.5rem;
+            max-width: 500px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--accent-blue);
+            border: 2px solid var(--accent-blue);
+            padding: 0.8rem 2rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 224, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .hero-visual {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .vehicle-showcase {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(20px);
+            animation: float 3s ease-in-out infinite;
+            max-width: 400px;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .vehicle-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-green));
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .vehicle-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shine 2s infinite;
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .vehicle-image i {
+            font-size: 4rem;
+            color: rgba(0, 0, 0, 0.7);
+        }
+
+        /* Stats Section */
+        .stats-section {
+            padding: 4rem 0;
+            background: var(--card-bg);
+            border-top: 1px solid var(--glass-border);
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            text-align: center;
+        }
+
+        .stat-item {
+            padding: 1rem;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--accent-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Subscription Section */
+        .subscription-section {
+            padding: 6rem 0;
+            background: linear-gradient(180deg, transparent 0%, rgba(53, 242, 219, 0.05) 100%);
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-header h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .section-header p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .subscription-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .subscription-card {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(20px);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .subscription-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--primary-gradient);
+        }
+
+        .subscription-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-blue);
+            box-shadow: 0 20px 40px rgba(0, 224, 255, 0.2);
+        }
+
+        .card-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-price {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--accent-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .card-period {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .card-features {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+
+        .card-features li {
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-features li i {
+            color: var(--accent-green);
+            width: 16px;
+        }
+
+        .card-button {
+            width: 100%;
+            background: var(--primary-gradient);
+            color: #000;
+            border: none;
+            padding: 1rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .card-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 224, 255, 0.3);
+        }
+
+        /* Features Section */
+        .features-section {
+            padding: 6rem 0;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            text-align: center;
+            padding: 2rem;
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            transition: var(--transition);
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-blue);
+        }
+
+        .feature-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            height: 80px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-icon i {
+            font-size: 2rem;
+            color: #000;
+        }
+
+        .feature-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .feature-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* App Section */
+        .app-section {
+            padding: 6rem 0;
+            background: linear-gradient(180deg, rgba(53, 242, 219, 0.05) 0%, transparent 100%);
+        }
+
+        .app-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .app-mockup {
+            position: relative;
+            display: flex;
+            justify-content: center;
+        }
+
+        .phone-frame {
+            width: 300px;
+            height: 600px;
+            background: #000;
+            border-radius: 30px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: var(--dark-bg);
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .app-interface {
+            padding: 1rem;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--glass-border);
+            margin-bottom: 1rem;
+        }
+
+        .app-logo {
+            font-weight: 700;
+            font-size: 1.1rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .app-feature-list {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+
+        .app-feature-list li {
+            padding: 0.8rem 0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .app-feature-list li:last-child {
+            border-bottom: none;
+        }
+
+        .app-feature-list i {
+            color: var(--accent-blue);
+            width: 20px;
+        }
+
+        /* Job Section */
+        .job-section {
+            padding: 6rem 0;
+        }
+
+        .job-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .job-opportunities {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .job-card {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 1.5rem;
+            backdrop-filter: blur(20px);
+            transition: var(--transition);
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+
+        .job-card:hover {
+            transform: translateX(10px);
+            border-color: var(--accent-green);
+        }
+
+        .job-title {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--accent-green);
+        }
+
+        .job-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .job-pay {
+            font-weight: 600;
+            color: var(--accent-blue);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--dark-bg);
+            border-top: 1px solid var(--glass-border);
+            padding: 3rem 0 1rem;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 1rem;
+            color: var(--accent-blue);
+        }
+
+        .footer-section a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            display: block;
+            padding: 0.3rem 0;
+            transition: var(--transition);
+        }
+
+        .footer-section a:hover {
+            color: var(--accent-blue);
+            padding-left: 0.5rem;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid var(--glass-border);
+            color: var(--text-secondary);
+        }
+
+        /* Loading Animation */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--dark-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(0, 224, 255, 0.3);
+            border-top: 3px solid var(--accent-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero-content,
+            .app-content,
+            .job-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .hero-text h1 {
+                font-size: 2.5rem;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+
+            .subscription-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .phone-frame {
+                width: 250px;
+                height: 500px;
+            }
+        }
+
+        /* Animation Classes */
+        .fade-in {
+            opacity: 1 !important;
+            transform: translateY(0) !important;
+        }
+
+        .slide-in-left {
+            opacity: 1 !important;
+            transform: translateX(0) !important;
+        }
+    </style>
+<script src="https://www.kimi.com/sdk-seed.js" defer=""></script></head>
+
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-overlay" id="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <div class="logo">UNITYLINK</div>
+                <ul class="nav-links">
+                    <li><a href="#subscriptions">Subscriptions</a></li>
+                    <li><a href="tracking.html">Tracking</a></li>
+                    <li><a href="jobs.html">Jobs</a></li>
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="#community">Community</a></li>
+                </ul>
+                <a class="cta-button" href="#get-started">Get Started</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1>
+                        The Future of <span class="gradient-text" id="typed-text"></span>
+                    </h1>
+                    <p>
+                        Revolutionizing rural Illinois through autonomous electric vehicle subscriptions, 
+                        community investment opportunities, and sustainable transportation solutions 
+                        that connect every corner of our state.
+                    </p>
+                    <div class="hero-buttons">
+                        <a class="cta-button" href="#subscriptions">Explore Subscriptions</a>
+                        <a class="btn-secondary" href="tracking.html">Live Tracking</a>
+                    </div>
+                </div>
+                <div class="hero-visual">
+                    <div class="vehicle-showcase">
+                        <div class="vehicle-image">
+                            <i class="fas fa-car"></i>
+                        </div>
+                        <div style="text-align: center;">
+                            <h3>Tesla Model Y</h3>
+                            <p style="color: var(--text-secondary); margin: 0;">Available Now</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" data-target="500">0</div>
+                    <div class="stat-label">Active Subscribers</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" data-target="50000">0</div>
+                    <div class="stat-label">Miles Driven</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" data-target="12">0</div>
+                    <div class="stat-label">Charging Hubs</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" data-target="95">0</div>
+                    <div class="stat-label">Customer Satisfaction</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Subscription Tiers Section -->
+    <section id="subscriptions" class="subscription-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Choose Your Perfect Plan</h2>
+                <p>Flexible subscription tiers designed for every lifestyle and budget, from casual riders to dedicated commuters.</p>
+            </div>
+
+            <div class="subscription-grid">
+                <!-- Base Take-Home -->
+                <div class="subscription-card">
+                    <div class="card-header">
+                        <div class="card-title">Base Take-Home</div>
+                        <div class="card-price">$350</div>
+                        <div class="card-period">per month</div>
+                    </div>
+                    <ul class="card-features">
+                        <li><i class="fas fa-check"></i> 1,000 miles/month</li>
+                        <li><i class="fas fa-check"></i> Basic insurance coverage</li>
+                        <li><i class="fas fa-check"></i> Routine maintenance</li>
+                        <li><i class="fas fa-check"></i> Free charging at UnityLink hubs</li>
+                        <li><i class="fas fa-check"></i> 24/7 phone support</li>
+                    </ul>
+                    <button class="card-button" onclick="selectPlan(&#39;base&#39;)">Choose Base Plan</button>
+                </div>
+
+                <!-- Standard Take-Home -->
+                <div class="subscription-card">
+                    <div class="card-header">
+                        <div class="card-title">Standard Take-Home</div>
+                        <div class="card-price">$450</div>
+                        <div class="card-period">per month</div>
+                    </div>
+                    <ul class="card-features">
+                        <li><i class="fas fa-check"></i> 1,500 miles/month</li>
+                        <li><i class="fas fa-check"></i> Comprehensive insurance</li>
+                        <li><i class="fas fa-check"></i> Extended maintenance coverage</li>
+                        <li><i class="fas fa-check"></i> Home EV charger installation</li>
+                        <li><i class="fas fa-check"></i> 24/7 roadside assistance</li>
+                    </ul>
+                    <button class="card-button" onclick="selectPlan(&#39;standard&#39;)">Choose Standard Plan</button>
+                </div>
+
+                <!-- Premium Take-Home -->
+                <div class="subscription-card">
+                    <div class="card-header">
+                        <div class="card-title">Premium Take-Home</div>
+                        <div class="card-price">$600</div>
+                        <div class="card-period">per month</div>
+                    </div>
+                    <ul class="card-features">
+                        <li><i class="fas fa-check"></i> 2,000 miles/month</li>
+                        <li><i class="fas fa-check"></i> Premium insurance</li>
+                        <li><i class="fas fa-check"></i> Full-service maintenance</li>
+                        <li><i class="fas fa-check"></i> Tesla Supercharger credits</li>
+                        <li><i class="fas fa-check"></i> Priority concierge support</li>
+                        <li><i class="fas fa-check"></i> UnityLink lounge access</li>
+                    </ul>
+                    <button class="card-button" onclick="selectPlan(&#39;premium&#39;)">Choose Premium Plan</button>
+                </div>
+
+                <!-- FlexRide Basic -->
+                <div class="subscription-card">
+                    <div class="card-header">
+                        <div class="card-title">FlexRide Basic</div>
+                        <div class="card-price">$99</div>
+                        <div class="card-period">per month</div>
+                    </div>
+                    <ul class="card-features">
+                        <li><i class="fas fa-check"></i> 10 rides/month (up to 5 miles each)</li>
+                        <li><i class="fas fa-check"></i> Priority off-peak dispatch</li>
+                        <li><i class="fas fa-check"></i> Community shuttle discounts</li>
+                        <li><i class="fas fa-check"></i> $1.00/mile + $0.20/min overage</li>
+                    </ul>
+                    <button class="card-button" onclick="selectPlan(&#39;flexride-basic&#39;)">Choose FlexRide Basic</button>
+                </div>
+
+                <!-- FlexRide Plus -->
+                <div class="subscription-card">
+                    <div class="card-header">
+                        <div class="card-title">FlexRide Plus</div>
+                        <div class="card-price">$149</div>
+                        <div class="card-period">per month</div>
+                    </div>
+                    <ul class="card-features">
+                        <li><i class="fas fa-check"></i> 20 rides/month (up to 5 miles each)</li>
+                        <li><i class="fas fa-check"></i> 24/7 priority dispatch</li>
+                        <li><i class="fas fa-check"></i> Tesla Supercharger credits</li>
+                        <li><i class="fas fa-check"></i> Basic UnityLink lounge access</li>
+                        <li><i class="fas fa-check"></i> $0.90/mile + $0.20/min overage</li>
+                    </ul>
+                    <button class="card-button" onclick="selectPlan(&#39;flexride-plus&#39;)">Choose FlexRide Plus</button>
+                </div>
+
+                <!-- FlexRide Premium -->
+                <div class="subscription-card">
+                    <div class="card-header">
+                        <div class="card-title">FlexRide Premium</div>
+                        <div class="card-price">$199</div>
+                        <div class="card-period">per month</div>
+                    </div>
+                    <ul class="card-features">
+                        <li><i class="fas fa-check"></i> 30 rides/month (up to 5 miles each)</li>
+                        <li><i class="fas fa-check"></i> Concierge-level support</li>
+                        <li><i class="fas fa-check"></i> Free upgrades to larger EVs</li>
+                        <li><i class="fas fa-check"></i> Full UnityLink lounge access</li>
+                        <li><i class="fas fa-check"></i> $0.75/mile + $0.15/min overage</li>
+                    </ul>
+                    <button class="card-button" onclick="selectPlan(&#39;flexride-premium&#39;)">Choose FlexRide Premium</button>
+                </div>
+            </div>
+
+            <!-- On-Demand Section -->
+            <div style="text-align: center; margin-top: 3rem; padding: 2rem; background: var(--card-bg); border-radius: 20px; border: 1px solid var(--glass-border);">
+                <h3 style="margin-bottom: 1rem;">On-Demand Rides</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">Pay as you go with no subscription required</p>
+                <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                    <div><strong>$2</strong> base fare</div>
+                    <div><strong>$1.25</strong> per mile</div>
+                    <div><strong>$0.25</strong> per minute</div>
+                    <div><strong>$5</strong> minimum fare</div>
+                </div>
+                <button class="cta-button" onclick="requestRide()">Request Ride Now</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Revolutionary Features</h2>
+                <p>Advanced technology and sustainable practices powering the future of transportation</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="feature-title">Autonomous Technology</div>
+                    <div class="feature-description">
+                        State-of-the-art self-driving capabilities with advanced safety systems and real-time route optimization.
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <div class="feature-title">100% Electric Fleet</div>
+                    <div class="feature-description">
+                        Zero-emission Tesla vehicles powered by renewable energy sources for maximum environmental impact.
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-charging-station"></i>
+                    </div>
+                    <div class="feature-title">Smart Charging Network</div>
+                    <div class="feature-description">
+                        Solar-powered charging hubs with fast-charging capabilities and intelligent energy management.
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="feature-title">Community Ownership</div>
+                    <div class="feature-description">
+                        Revolutionary tokenization model allowing residents to invest in and benefit from local infrastructure.
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </div>
+                    <div class="feature-title">Rural Coverage</div>
+                    <div class="feature-description">
+                        Specialized focus on underserved rural communities, bringing advanced transportation to every corner of Illinois.
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="feature-title">Safety First</div>
+                    <div class="feature-description">
+                        Comprehensive safety protocols, real-time monitoring, and emergency response integration.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mobile App Section -->
+    <section id="app" class="app-section">
+        <div class="container">
+            <div class="app-content">
+                <div class="app-text">
+                    <h2>Seamless Mobile Experience</h2>
+                    <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+                        Control your entire UnityLink experience from your smartphone. Book rides, manage subscriptions, 
+                        track vehicles, and access exclusive features with our intuitive mobile application.
+                    </p>
+
+                    <ul class="app-feature-list">
+                        <li>
+                            <i class="fas fa-mobile-alt"></i>
+                            <div>
+                                <strong>Instant Booking</strong><br/>
+                                Reserve vehicles and schedule rides with one tap
+                            </div>
+                        </li>
+                        <li>
+                            <i class="fas fa-map-marked-alt"></i>
+                            <div>
+                                <strong>Real-Time Tracking</strong><br/>
+                                Monitor vehicle location and estimated arrival times
+                            </div>
+                        </li>
+                        <li>
+                            <i class="fas fa-credit-card"></i>
+                            <div>
+                                <strong>Subscription Management</strong><br/>
+                                Upgrade plans, view usage, and manage billing
+                            </div>
+                        </li>
+                        <li>
+                            <i class="fas fa-battery-full"></i>
+                            <div>
+                                <strong>Charging Hub Locator</strong><br/>
+                                Find nearby charging stations with availability status
+                            </div>
+                        </li>
+                        <li>
+                            <i class="fas fa-coins"></i>
+                            <div>
+                                <strong>ChainLink Integration</strong><br/>
+                                Manage community investments and track returns
+                            </div>
+                        </li>
+                    </ul>
+
+                    <div style="margin-top: 2rem;">
+                        <a class="cta-button" href="#">Download iOS App</a>
+                        <a class="btn-secondary" href="#" style="margin-left: 1rem;">Download Android App</a>
+                    </div>
+                </div>
+
+                <div class="app-mockup">
+                    <div class="phone-frame">
+                        <div class="phone-screen">
+                            <div class="app-interface">
+                                <div class="app-header">
+                                    <div class="app-logo">UnityLink</div>
+                                    <i class="fas fa-user-circle" style="color: var(--accent-blue); font-size: 1.5rem;"></i>
+                                </div>
+                                
+                                <div style="background: var(--card-bg); border-radius: 15px; padding: 1rem; margin-bottom: 1rem; border: 1px solid var(--glass-border);">
+                                    <h4 style="margin-bottom: 0.5rem; color: var(--accent-blue);">Your Next Ride</h4>
+                                    <p style="margin: 0; font-size: 0.9rem; color: var(--text-secondary);">Tesla Model Y arriving in 3 minutes</p>
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                                    <div style="background: var(--card-bg); border-radius: 10px; padding: 1rem; text-align: center; border: 1px solid var(--glass-border);">
+                                        <i class="fas fa-car" style="color: var(--accent-green); font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
+                                        <div style="font-size: 0.8rem;">Available Vehicles</div>
+                                        <div style="font-weight: 700; color: var(--accent-green);">12</div>
+                                    </div>
+                                    <div style="background: var(--card-bg); border-radius: 10px; padding: 1rem; text-align: center; border: 1px solid var(--glass-border);">
+                                        <i class="fas fa-charging-station" style="color: var(--accent-blue); font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
+                                        <div style="font-size: 0.8rem;">Charging Hubs</div>
+                                        <div style="font-weight: 700; color: var(--accent-blue);">8</div>
+                                    </div>
+                                </div>
+
+                                <div style="background: var(--primary-gradient); border-radius: 10px; padding: 1rem; text-align: center; color: #000; margin-bottom: 1rem;">
+                                    <strong>Request Ride</strong>
+                                </div>
+
+                                <div style="flex: 1; background: var(--card-bg); border-radius: 10px; padding: 1rem; border: 1px solid var(--glass-border);">
+                                    <h5 style="margin-bottom: 1rem; color: var(--accent-blue);">Recent Activity</h5>
+                                    <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6;">
+                                        <div style="margin-bottom: 0.5rem;">• Ride to Downtown Springfield - $12.50</div>
+                                        <div style="margin-bottom: 0.5rem;">• Monthly subscription renewed</div>
+                                        <div>• ChainLink dividend received - $45.00</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Job Platform Section -->
+    <section id="jobs" class="job-section">
+        <div class="container">
+            <div class="job-content">
+                <div>
+                    <h2>Join the UnityLink Team</h2>
+                    <p style="color: var(--text-secondary); margin-bottom: 2rem; font-size: 1.1rem;">
+                        Be part of the transportation revolution. Create flexible income opportunities while building 
+                        the future of sustainable mobility in rural communities.
+                    </p>
+
+                    <div style="background: var(--card-bg); border-radius: 20px; padding: 2rem; border: 1px solid var(--glass-border); margin-bottom: 2rem;">
+                        <h3 style="color: var(--accent-green); margin-bottom: 1rem;">Why Work With Us?</h3>
+                        <ul style="list-style: none; color: var(--text-secondary);">
+                            <li style="margin-bottom: 0.5rem;"><i class="fas fa-check" style="color: var(--accent-green); margin-right: 0.5rem;"></i> Flexible scheduling that fits your life</li>
+                            <li style="margin-bottom: 0.5rem;"><i class="fas fa-check" style="color: var(--accent-green); margin-right: 0.5rem;"></i> Competitive compensation and benefits</li>
+                            <li style="margin-bottom: 0.5rem;"><i class="fas fa-check" style="color: var(--accent-green); margin-right: 0.5rem;"></i> Contribute to community development</li>
+                            <li><i class="fas fa-check" style="color: var(--accent-green); margin-right: 0.5rem;"></i> Work with cutting-edge technology</li>
+                        </ul>
+                    </div>
+
+                    <a class="cta-button" href="jobs.html">Apply Now</a>
+                </div>
+
+                <div class="job-opportunities">
+                    <div class="job-card">
+                        <div class="job-title">Vehicle Operations Specialist</div>
+                        <div class="job-description">
+                            Manage vehicle maintenance, charging schedules, and fleet coordination. 
+                            Perfect for detail-oriented individuals with technical aptitude.
+                        </div>
+                        <div class="job-pay">$18-25/hour</div>
+                    </div>
+
+                    <div class="job-card">
+                        <div class="job-title">Community Liaison</div>
+                        <div class="job-description">
+                            Build relationships with local residents and businesses. Help expand 
+                            UnityLink&#39;s presence in rural communities.
+                        </div>
+                        <div class="job-pay">$16-22/hour</div>
+                    </div>
+
+                    <div class="job-card">
+                        <div class="job-title">Customer Experience Ambassador</div>
+                        <div class="job-description">
+                            Provide exceptional customer service and support to subscribers. 
+                            Remote work opportunities available.
+                        </div>
+                        <div class="job-pay">$15-20/hour</div>
+                    </div>
+
+                    <div class="job-card">
+                        <div class="job-title">Charging Hub Attendant</div>
+                        <div class="job-description">
+                            Maintain charging stations, assist customers, and ensure optimal 
+                            operation of hub facilities. Part-time and full-time positions.
+                        </div>
+                        <div class="job-pay">$14-18/hour</div>
+                    </div>
+
+                    <div class="job-card">
+                        <div class="job-title">ChainLink Investment Coordinator</div>
+                        <div class="job-description">
+                            Help community members navigate the tokenization platform and 
+                            investment opportunities. Financial services background preferred.
+                        </div>
+                        <div class="job-pay">$20-28/hour</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>UnityLink Platform</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                        Revolutionizing rural transportation through sustainable innovation and community empowerment.
+                    </p>
+                    <div style="display: flex; gap: 1rem;">
+                        <a href="#" style="color: var(--accent-blue); font-size: 1.5rem;"><i class="fab fa-twitter"></i></a>
+                        <a href="#" style="color: var(--accent-blue); font-size: 1.5rem;"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" style="color: var(--accent-blue); font-size: 1.5rem;"><i class="fab fa-facebook"></i></a>
+                        <a href="#" style="color: var(--accent-blue); font-size: 1.5rem;"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+
+                <div class="footer-section">
+                    <h3>Services</h3>
+                    <a href="#subscriptions">Vehicle Subscriptions</a>
+                    <a href="tracking.html">Real-Time Tracking</a>
+                    <a href="jobs.html">Job Opportunities</a>
+                    <a href="#community">Community Investment</a>
+                    <a href="#charging">Charging Network</a>
+                </div>
+
+                <div class="footer-section">
+                    <h3>Support</h3>
+                    <a href="#">Help Center</a>
+                    <a href="#">Contact Support</a>
+                    <a href="#">Safety Information</a>
+                    <a href="#">Community Guidelines</a>
+                    <a href="#">Privacy Policy</a>
+                </div>
+
+                <div class="footer-section">
+                    <h3>Contact</h3>
+                    <p style="color: var(--text-secondary);">
+                        2457 E Eldorado St<br/>
+                        Decatur, IL 62521<br/><br/>
+                        <strong>Phone:</strong> (217) 555-0123<br/>
+                        <strong>Email:</strong> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="6801060e07281d06011c1104010603460b0705">[email&#160;protected]</a>
+                    </p>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>© 2025 UnityLink Platform LLC. All rights reserved. | Transforming rural transportation one community at a time.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="main.js"></script>
+
+</body></html>
