@@ -4,8 +4,18 @@ import { Badge } from "@/components/ui/badge";
 import { Check, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+export interface SubscriptionPlan {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  vehicle: string;
+  popular?: boolean;
+  features: string[];
+}
+
 interface PlanCardProps {
-  plan: any;
+  plan: SubscriptionPlan;
   onSubscribe: (planName: string) => void;
   isLoading: boolean;
 }

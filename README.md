@@ -1,69 +1,127 @@
-# Welcome to your Lovable project
+# UnityLink OS
 
-## Project info
+UnityLink OS is the software platform for the UnityLink Commonwealth Pana, Illinois
+pilot — an integrated rural infrastructure operating system combining electric
+mobility, community solar and storage, EV charging, workforce pathways, public
+finance, and a governed software platform.
 
-**URL**: https://lovable.dev/projects/fa314406-a94b-495f-93d0-93f5073e8084
+This repository is the application monorepo: a web/desktop/mobile-accessible
+frontend, the Paperclip control-plane bridge, and the engineering foundation
+(CI, lint, tests, previews) the pilot depends on.
 
-## How can I edit this code?
+> Status: **early scaffold**. This repo builds, lints, and tests green, and ships
+> a minimal running app skeleton. Domain workflows (intake, fleet, evidence
+> vault, approvals) are tracked as separate issues and land incrementally.
 
-There are several ways of editing your application.
+## Architecture overview
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/fa314406-a94b-495f-93d0-93f5073e8084) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Browser / desktop / mobile web client                      │
+│  React 18 + TypeScript + Vite + Tailwind + shadcn/ui        │
+│  Routes: / (landing), /control-plane, /fleet, /booking, …   │
+└───────────────┬─────────────────────────────────────────────┘
+                │  /api/control-plane/*  (dev proxy → :8787)
+┌───────────────▼─────────────────────────────────────────────┐
+│  server/control-plane.mjs  — read-only Paperclip bridge     │
+│  GET-only proxy; operator token stays server-side           │
+└───────────────┬─────────────────────────────────────────────┘
+                │ HTTPS (Paperclip API)
+┌───────────────▼─────────────────────────────────────────────┐
+│  Paperclip control plane (company API)                      │
+│  companies · agents · goals · projects · issues · approvals │
+│  documents · work products · audit history                  │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-**Edit a file directly in GitHub**
+### Layers
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+| Layer | Location | Notes |
+|-------|----------|-------|
+| Web app | `src/` | React SPA, responsive (mobile nav + desktop nav), Vite build |
+| Control-plane bridge | `server/control-plane.mjs` | Read-only GET proxy to the Paperclip API; token never shipped to the browser |
+| Control-plane client | `src/lib/control-plane.ts` | Typed client + status/time helpers used by the dashboard |
+| UI kit | `src/components/ui/` | shadcn/ui components |
+| Tests | `src/**/*.test.ts(x)` | Vitest + Testing Library |
+| CI | `.github/workflows/ci.yml` | lint → test → typecheck → build on push/PR |
 
-**Use GitHub Codespaces**
+### Design principles
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+- **Evidence over mock.** No mock data is presented as real. The control-plane
+  dashboard renders live Paperclip company data through the bridge.
+- **Read-only by default.** The bridge exposes GET endpoints only; write and
+  approval flows stay in the Paperclip control plane until a governed write
+  path is built and approved.
+- **Secrets stay server-side.** `PAPERCLIP_API_KEY` is read by the bridge
+  process, never bundled into the frontend.
 
-## What technologies are used for this project?
+## Repository layout
 
-This project is built with .
+```
+.github/workflows/ci.yml   CI pipeline (lint, test, typecheck, build)
+server/control-plane.mjs   Paperclip control-plane bridge (Node, no deps)
+src/                       React application
+  pages/                   route-level pages (Index, ControlPlane, Fleet, …)
+  components/              UI + feature components
+  lib/                     typed clients and helpers
+  test/setup.ts            Vitest setup (jest-dom matchers)
+vitest.config.ts           Test configuration
+vite.config.ts             Build/dev configuration
+tailwind.config.ts         Tailwind theme
+eslint.config.js           ESLint flat config
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Prerequisites
 
-## How can I deploy this project?
+- Node.js 20+ (CI uses Node 22)
+- npm 10+
 
-Simply open [Lovable](https://lovable.dev/projects/fa314406-a94b-495f-93d0-93f5073e8084) and click on Share -> Publish.
+## Run locally
 
-## I want to use a custom domain - is that possible?
+```sh
+npm install        # install dependencies
+npm run dev        # start Vite dev server → http://localhost:8080
+```
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+The dev server proxies `/api/control-plane/*` to the bridge on `:8787`. To
+serve live control-plane data you also need the bridge running with a
+Paperclip token:
+
+```bash
+PAPERCLIP_API_URL=http://127.0.0.1:3100 \
+PAPERCLIP_API_KEY=<operator-or-agent-token> \
+PAPERCLIP_COMPANY_ID=<company-id> \
+node server/control-plane.mjs
+```
+
+Without the bridge, the app still runs; the control-plane page shows its
+unavailable state rather than fabricated data.
+
+## Quality gates
+
+```bash
+npm run lint        # ESLint (0 errors expected)
+npm test            # Vitest unit + component tests
+npx tsc --noEmit    # TypeScript typecheck
+npm run build       # Production build to dist/
+```
+
+CI runs all four on every push to `main` and on pull requests.
+
+## Preview deployment
+
+A production build is served as a preview via `npm run build` + a static
+server (e.g. `npm run preview` or `cloudflared tunnel`). The current preview
+URL is recorded on the issue that shipped it.
+
+## Roadmap (tracked in Paperclip)
+
+- [UNI-4] Evidence vault and audit history
+- [UNI-5] Customer and member intake workflows
+- [UNI-8] Production hardening and deployment
+
+## License / provenance
+
+This repository is UnityLink-owned. Third-party dependencies are listed in
+`package.json`; see the vision-parity specification for the licensing boundary
+analysis of the broader UnityLink product surface.

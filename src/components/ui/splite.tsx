@@ -6,14 +6,14 @@ const Spline = lazy(() => import('@splinetool/react-spline'))
 interface SplineSceneProps {
   scene: string
   className?: string
-  onError?: (error: any) => void
+  onError?: (error: unknown) => void
   onLoad?: () => void
 }
 
 export function SplineScene({ scene, className, onError, onLoad }: SplineSceneProps) {
   const [hasError, setHasError] = useState(false)
 
-  const handleError = (error: any) => {
+  const handleError = (error: unknown) => {
     console.error('Spline loading error:', error)
     setHasError(true)
     onError?.(error)

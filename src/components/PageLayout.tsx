@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Navigation } from "./Navigation";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Menu, ChevronRight, Settings2 } from "lucide-react";
+import { Menu, ChevronRight, Settings2, type LucideIcon } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -11,7 +11,7 @@ interface PageLayoutProps {
   title: string;
   menuItems: Array<{
     title: string;
-    icon: any;
+    icon: LucideIcon;
     description: string;
     action?: () => void;
     component?: React.ReactNode;
