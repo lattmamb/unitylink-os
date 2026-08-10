@@ -30,6 +30,11 @@
  *   EVIDENCE_DB        (optional, default ./data/evidence.db; ":memory:" for tests)
  *   EVIDENCE_VAULT_DIR (optional, default ./data/vault)
  *   EVIDENCE_CORS      (optional origin allowlist, comma separated; default *)
+ *   UNITYLINK_OPERATOR_KEY (required) operator bearer token; all data routes
+ *                          are operator-only. /api/health is public.
+ *   UNITYLINK_MEMBER_KEY   (optional) member bearer token (reserved for the
+ *                          participant-facing surface; denied on vault routes)
+ *   LOG_LEVEL          (optional, default info)
  *
  * Run: node server/evidence-vault/api.mjs
  */
@@ -37,6 +42,8 @@ import http from "node:http";
 import { mkdirSync } from "node:fs";
 import { parseArgs } from "node:util";
 import { openDb } from "./db.mjs";
+import { createAuth, authenticate, requireOperatorWith } from "../lib/auth.mjs";
+import { log, requestLogger } from "../lib/log.mjs";
 import {
   addEvidence, listEvidence, getEvidence,
   addSource, listSources,
@@ -90,6 +97,7 @@ function readBody(req) {
 
 export function createEvidenceServer(db, opts = {}) {
   const vaultDir = opts.vaultDir ?? VAULT_DIR;
+  const auth = opts.auth ?? createAuth();
   if (vaultDir !== ":memory:") mkdirSync(vaultDir, { recursive: true });
 
   return http.createServer(async (req, res) => {
@@ -97,22 +105,43 @@ export function createEvidenceServer(db, opts = {}) {
     let parts = url.pathname.split("/").filter(Boolean);
     if (parts[0] === "api") parts = parts.slice(1);
     const method = (req.method ?? "GET").toUpperCase();
-    const actor = (req.headers["x-operator"] || "operator").toString();
+    const reqLog = requestLogger(req, "evidence-vault");
+    const actor = authenticate(req, auth.store)?.id ?? null;
 
     if (method === "OPTIONS") {
       res.writeHead(204, {
         "Access-Control-Allow-Origin": CORS_ALLOW.includes("*") ? "*" : CORS_ALLOW[0],
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, X-Operator",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Operator",
       });
       res.end();
+      reqLog.done(204, actor);
       return;
     }
 
     try {
-      /* ---- health ---- */
+      /* ---- health (public) ---- */
       if (method === "GET" && parts.join("/") === "health") {
+        reqLog.done(200, actor);
         return json(res, 200, { ok: true, service: "unitylink-os/evidence-vault" });
+      }
+
+      /* ---- member self-service (reserved for participant-facing surface) ---- */
+      if (method === "GET" && parts.join("/") === "member/me") {
+        const denied = requireOperatorWith(auth, req);
+        if (denied) {
+          reqLog.done(denied.status, actor);
+          return json(res, denied.status, denied);
+        }
+        reqLog.done(200, actor);
+        return json(res, 200, { actor: { id: actor, role: "operator" } });
+      }
+
+      /* ---- everything below requires operator ---- */
+      const denied = requireOperatorWith(auth, req);
+      if (denied) {
+        reqLog.done(denied.status, actor);
+        return json(res, denied.status, denied);
       }
 
       /* ---- evidence ---- */
@@ -129,19 +158,23 @@ export function createEvidenceServer(db, opts = {}) {
           tags: body.tags,
           source: body.source ?? "upload",
         });
+        reqLog.done(201, actor);
         return json(res, 201, { evidence: item });
       }
 
       if (method === "GET" && parts.join("/") === "evidence") {
-        return json(res, 200, {
+        const result = {
           evidence: listEvidence(db, {
             kind: url.searchParams.get("kind") ?? undefined,
             status: url.searchParams.get("status") ?? undefined,
           }),
-        });
+        };
+        reqLog.done(200, actor);
+        return json(res, 200, result);
       }
 
       if (method === "GET" && parts.length === 2 && parts[0] === "evidence") {
+        reqLog.done(200, actor);
         return json(res, 200, { evidence: getEvidence(db, parts[1]) });
       }
 
@@ -150,6 +183,7 @@ export function createEvidenceServer(db, opts = {}) {
         const events = db.prepare(
           "SELECT * FROM audit_events WHERE entity_id = ? ORDER BY created_at ASC",
         ).all(parts[1]);
+        reqLog.done(200, actor);
         return json(res, 200, { evidence: item, provenance: events });
       }
 
@@ -164,10 +198,12 @@ export function createEvidenceServer(db, opts = {}) {
           authority: body.authority,
           notes: body.notes,
         });
+        reqLog.done(201, actor);
         return json(res, 201, { source });
       }
 
       if (method === "GET" && parts.join("/") === "sources") {
+        reqLog.done(200, actor);
         return json(res, 200, { sources: listSources(db) });
       }
 
@@ -175,10 +211,12 @@ export function createEvidenceServer(db, opts = {}) {
       if (method === "POST" && parts.length === 3 && parts[0] === "evidence" && parts[2] === "citations") {
         const body = await readBody(req);
         const citation = addCitation(db, actor, parts[1], body.sourceId, body.note);
+        reqLog.done(201, actor);
         return json(res, 201, { citation });
       }
 
       if (method === "GET" && parts.length === 3 && parts[0] === "evidence" && parts[2] === "citations") {
+        reqLog.done(200, actor);
         return json(res, 200, { citations: listCitations(db, parts[1]) });
       }
 
@@ -190,18 +228,22 @@ export function createEvidenceServer(db, opts = {}) {
           title: body.title,
           description: body.description,
         });
+        reqLog.done(201, actor);
         return json(res, 201, { approval });
       }
 
       if (method === "GET" && parts.join("/") === "approvals") {
-        return json(res, 200, {
+        const result = {
           approvals: listApprovals(db, url.searchParams.get("status") ?? undefined),
-        });
+        };
+        reqLog.done(200, actor);
+        return json(res, 200, result);
       }
 
       if (method === "POST" && parts.length === 3 && parts[0] === "approvals" && parts[2] === "decision") {
         const body = await readBody(req);
         const approval = decideApproval(db, actor, parts[1], body.decision, body.note);
+        reqLog.done(200, actor);
         return json(res, 200, { approval });
       }
 
@@ -209,6 +251,7 @@ export function createEvidenceServer(db, opts = {}) {
       if (method === "POST" && parts.join("/") === "actions/execute") {
         const body = await readBody(req);
         const result = executeGatedAction(db, actor, body.approvalId, { description: body.description });
+        reqLog.done(200, actor);
         return json(res, 200, result);
       }
 
@@ -220,6 +263,7 @@ export function createEvidenceServer(db, opts = {}) {
           payload: body.payload,
           changeSummary: body.changeSummary,
         });
+        reqLog.done(201, actor);
         return json(res, 201, result);
       }
 
@@ -229,29 +273,42 @@ export function createEvidenceServer(db, opts = {}) {
           payload: body.payload,
           changeSummary: body.changeSummary,
         });
+        reqLog.done(201, actor);
         return json(res, 201, result);
       }
 
       if (method === "GET" && parts.length === 2 && parts[0] === "packets") {
+        reqLog.done(200, actor);
         return json(res, 200, { packet: getPacket(db, parts[1]) });
       }
 
       if (method === "GET" && parts.length === 4 && parts[0] === "packets" && parts[2] === "versions") {
+        reqLog.done(200, actor);
         return json(res, 200, { version: getPacketVersion(db, parts[1], Number(parts[3])) });
       }
 
       /* ---- audit export ---- */
       if (method === "GET" && parts.join("/") === "audit/export") {
         const format = url.searchParams.get("format") ?? "json";
-        if (format === "csv") return text(res, 200, exportAuditCSV(db), "text/csv; charset=utf-8");
-        if (format === "markdown") return text(res, 200, exportAuditMarkdown(db), "text/markdown; charset=utf-8");
+        if (format === "csv") {
+          reqLog.done(200, actor);
+          return text(res, 200, exportAuditCSV(db), "text/csv; charset=utf-8");
+        }
+        if (format === "markdown") {
+          reqLog.done(200, actor);
+          return text(res, 200, exportAuditMarkdown(db), "text/markdown; charset=utf-8");
+        }
+        reqLog.done(200, actor);
         return json(res, 200, exportAuditJSON(db));
       }
 
+      reqLog.done(404, actor);
       return json(res, 404, { error: "Not found" });
     } catch (err) {
+      reqLog.done(err instanceof ApprovalError ? 403 : err instanceof VaultError ? 400 : 500, actor);
       if (err instanceof ApprovalError) return json(res, 403, { error: err.message });
       if (err instanceof VaultError) return json(res, 400, { error: err.message });
+      log.error("evidence_vault_error", { error: err.message });
       return json(res, 500, { error: err.message ?? "Internal error" });
     }
   });
@@ -269,11 +326,13 @@ if (process.argv[1] && import.meta.url.endsWith(process.argv[1].split("/").pop()
   const dbPath = values.db === ":memory:" ? ":memory:" : values.db;
   if (dbPath !== ":memory:") mkdirSync(dbPath.split("/").slice(0, -1).join("/") || ".", { recursive: true });
   const db = openDb(dbPath);
-  const server = createEvidenceServer(db, { vaultDir: values["vault-dir"] });
+  const auth = createAuth();
+  const server = createEvidenceServer(db, { vaultDir: values["vault-dir"], auth });
   const port = Number(values.port);
   server.listen(port, () => {
-    console.log(`UnityLink OS evidence vault API listening on http://127.0.0.1:${port}`);
-    console.log(`DB: ${dbPath}`);
-    console.log(`Vault dir: ${values["vault-dir"]}`);
+    log.info("evidence_vault_started", { port, db: dbPath, vaultDir: values["vault-dir"], authConfigured: !auth.disabled });
+    if (auth.disabled) {
+      log.warn("evidence_vault_auth_disabled", { detail: "Set UNITYLINK_OPERATOR_KEY to protect data routes." });
+    }
   });
 }
