@@ -5,6 +5,8 @@
  * The browser talks to the vault over the Vite dev proxy (`/api/evidence/*`).
  */
 
+import { authHeaders } from "./auth";
+
 export interface EvidenceItem {
   id: string;
   title: string;
@@ -91,7 +93,11 @@ const BASE = "/api/evidence";
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
-    headers: { "Content-Type": "application/json", "X-Operator": "operator" },
+    headers: {
+      "Content-Type": "application/json",
+      "X-Operator": "operator",
+      ...authHeaders(),
+    },
     ...init,
   });
   if (!res.ok) {
@@ -199,7 +205,7 @@ export const evidenceVault = {
 
   exportAudit: async (format: "json" | "csv" | "markdown" = "json") => {
     const res = await fetch(`${BASE}/audit/export?format=${format}`, {
-      headers: { "X-Operator": "operator" },
+      headers: { "X-Operator": "operator", ...authHeaders() },
     });
     if (!res.ok) throw new Error(`Export failed (${res.status})`);
     return res.text();

@@ -22,6 +22,7 @@ import ControlPlane from "./pages/ControlPlane";
 import EvidenceVault from "./pages/EvidenceVault";
 import Approvals from "./pages/Approvals";
 import AuditExport from "./pages/AuditExport";
+import Login from "./pages/Login";
 import CommandMenu from "./components/navigation/CommandMenu";
 import BottomNavigation from "./components/navigation/BottomNavigation";
 import { useLastVisitedRoutes } from "./hooks/useLastVisitedRoutes";
@@ -70,6 +71,7 @@ const App = () => (
             <Route path="/evidence" element={<EvidenceVault />} />
             <Route path="/approvals" element={<Approvals />} />
             <Route path="/audit" element={<AuditExport />} />
+            <Route path="/login" element={<Login />} />
           </Routes>
         </div>
       </TooltipProvider>
