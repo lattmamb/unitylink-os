@@ -16,6 +16,7 @@ import Rentals from "./pages/Rentals";
 import OnDemand from "./pages/OnDemand";
 import VehicleDetail from "./pages/VehicleDetail";
 import Fleet from "./pages/Fleet";
+import FleetOperations from "./pages/FleetOperations";
 import KnowledgeOS from "./pages/KnowledgeOS";
 import ControlPlane from "./pages/ControlPlane";
 import EvidenceVault from "./pages/EvidenceVault";
@@ -63,6 +64,7 @@ const App = () => (
             <Route path="/rentals/:id" element={<VehicleDetail />} />
             <Route path="/on-demand" element={<OnDemand />} />
             <Route path="/fleet" element={<Fleet />} />
+            <Route path="/fleet-operations" element={<FleetOperations />} />
             <Route path="/os" element={<KnowledgeOS />} />
             <Route path="/control-plane" element={<ControlPlane />} />
             <Route path="/evidence" element={<EvidenceVault />} />

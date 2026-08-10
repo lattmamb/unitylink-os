@@ -24,6 +24,7 @@ frontend, the Paperclip control-plane bridge, and the engineering foundation
 └───────────────┬─────────────────────────────────────────────┘
                 │  /api/control-plane/*  (dev proxy → :8787)
                 │  /api/evidence/*       (dev proxy → :8788)
+                │  /api/fleet/*          (dev proxy → :8789)
 ┌───────────────▼─────────────────────────────────────────────┐
 │  server/control-plane.mjs  — read-only Paperclip bridge     │
 │  GET-only proxy; operator token stays server-side           │
@@ -40,6 +41,14 @@ frontend, the Paperclip control-plane bridge, and the engineering foundation
 │  SQLite + SHA-256 file vault · sources · citations ·        │
 │  approval gates · finance packet versioning · audit export  │
 └─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│  server/fleet-mobility/  — fleet & mobility operations      │
+│  vehicle registry (VIN/title/lien/insurance) · bookings ·   │
+│  subscriptions · dispatch · mileage · inspections ·         │
+│  maintenance · charging · incidents · payments ·            │
+│  utilization · operating costs · audit export               │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ### Layers
@@ -51,6 +60,8 @@ frontend, the Paperclip control-plane bridge, and the engineering foundation
 | Control-plane client | `src/lib/control-plane.ts` | Typed client + status/time helpers used by the dashboard |
 | Evidence vault | `server/evidence-vault/` | SQLite-backed evidence & compliance layer: SHA-256 file vault, sources, citations, approval gates, finance packet versioning, audit export (JSON/CSV/Markdown) |
 | Evidence-vault client | `src/lib/evidence-vault.ts` | Typed client for the vault API, used by `/evidence`, `/approvals`, `/audit` pages |
+| Fleet & mobility | `server/fleet-mobility/` | SQLite-backed fleet & mobility operations: vehicle registry (VIN, title, lien, insurance), bookings and subscriptions with operator approval gates, dispatch, mileage, inspections, maintenance, charging sessions, incidents, payments, utilization, operating costs, audit export (JSON/CSV/Markdown) |
+| Fleet-mobility client | `src/lib/fleet-mobility.ts` | Typed client for the fleet API, used by `/fleet-operations` |
 | UI kit | `src/components/ui/` | shadcn/ui components |
 | Tests | `src/**/*.test.ts(x)` | Vitest + Testing Library |
 | CI | `.github/workflows/ci.yml` | lint → test → typecheck → build on push/PR |
@@ -133,6 +144,33 @@ trail exports as JSON, CSV, or Markdown. Run the server tests with:
 node --test "server/evidence-vault/test/*.test.mjs"
 ```
 
+### Fleet & mobility operations
+
+The fleet & mobility layer runs as a separate zero-dependency Node server on
+`:8789`. The dev server proxies `/api/fleet/*` to it (rewritten to `/api/*`).
+
+```bash
+FLEET_PORT=8789 \
+FLEET_DB=./data/fleet.db \
+node server/fleet-mobility/api.mjs
+```
+
+Endpoints: `/api/health`, `/api/vehicles` (POST/GET), `/api/vehicles/:id`,
+`/api/vehicles/:id/status`, `/api/vehicles/:id/summary`, `/api/vehicles/:id/mileage`,
+`/api/vehicles/:id/inspections`, `/api/vehicles/:id/maintenance`,
+`/api/vehicles/:id/charging`, `/api/vehicles/:id/incidents`,
+`/api/vehicles/:id/costs`, `/api/bookings` (+ decision/schedule/start/complete/cancel),
+`/api/subscriptions` (+ decision/activate/cancel), `/api/dispatch`,
+`/api/payments`, `/api/audit/export?format=…`.
+
+Booking and subscription requests start `pending` and refuse to proceed past
+approval until a human operator decides them (`approve`/`block`). Every
+mutation writes an `audit_events` row. Run the server tests with:
+
+```bash
+node --test "server/fleet-mobility/test/*.test.mjs"
+```
+
 ## Quality gates
 
 ```bash
@@ -153,6 +191,7 @@ URL is recorded on the issue that shipped it.
 ## Roadmap (tracked in Paperclip)
 
 - [x] [UNI-4] Evidence vault and audit history
+- [x] [UNI-6] Fleet & mobility operations (vehicle registry, bookings/subscriptions with operator approval, dispatch, mileage, inspections, maintenance, charging, incidents, payments, utilization, operating costs)
 - [ ] [UNI-5] Customer and member intake workflows
 - [ ] [UNI-8] Production hardening and deployment
 

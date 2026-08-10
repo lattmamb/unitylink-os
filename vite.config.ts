@@ -17,6 +17,11 @@ export default defineConfig(() => ({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/evidence/, "/api"),
       },
+      "/api/fleet": {
+        target: "http://127.0.0.1:8789",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/fleet/, "/api"),
+      },
     },
   },
   plugins: [react()],
