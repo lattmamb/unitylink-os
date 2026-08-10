@@ -17,6 +17,10 @@ import OnDemand from "./pages/OnDemand";
 import VehicleDetail from "./pages/VehicleDetail";
 import Fleet from "./pages/Fleet";
 import KnowledgeOS from "./pages/KnowledgeOS";
+import ControlPlane from "./pages/ControlPlane";
+import EvidenceVault from "./pages/EvidenceVault";
+import Approvals from "./pages/Approvals";
+import AuditExport from "./pages/AuditExport";
 import CommandMenu from "./components/navigation/CommandMenu";
 import BottomNavigation from "./components/navigation/BottomNavigation";
 import { useLastVisitedRoutes } from "./hooks/useLastVisitedRoutes";
@@ -60,6 +64,10 @@ const App = () => (
             <Route path="/on-demand" element={<OnDemand />} />
             <Route path="/fleet" element={<Fleet />} />
             <Route path="/os" element={<KnowledgeOS />} />
+            <Route path="/control-plane" element={<ControlPlane />} />
+            <Route path="/evidence" element={<EvidenceVault />} />
+            <Route path="/approvals" element={<Approvals />} />
+            <Route path="/audit" element={<AuditExport />} />
           </Routes>
         </div>
       </TooltipProvider>
