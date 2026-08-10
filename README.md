@@ -9,9 +9,11 @@ This repository is the application monorepo: a web/desktop/mobile-accessible
 frontend, the Paperclip control-plane bridge, and the engineering foundation
 (CI, lint, tests, previews) the pilot depends on.
 
-> Status: **early scaffold**. This repo builds, lints, and tests green, and ships
-> a minimal running app skeleton. Domain workflows (intake, fleet, evidence
-> vault, approvals) are tracked as separate issues and land incrementally.
+> Status: **hardened pilot**. This repo builds, lints, tests, and typechecks
+> green; ships auth + RBAC, tested backups, secret management, structured
+> logging, an incident-response runbook, and a monitored production-like
+> deployment. Domain workflows (intake, fleet, evidence vault, approvals) are
+> tracked as separate issues and land incrementally.
 
 ## Architecture overview
 
@@ -75,6 +77,13 @@ frontend, the Paperclip control-plane bridge, and the engineering foundation
   path is built and approved.
 - **Secrets stay server-side.** `PAPERCLIP_API_KEY` is read by the bridge
   process, never bundled into the frontend.
+- **Fail closed.** If no operator key is configured, protected routes return
+  503 rather than silently allowing access. A missing/invalid token is 401; a
+  valid token with the wrong role is 403.
+- **Backups are verified.** Restore refuses to write until the archive's
+  SHA-256 manifest matches; a tampered archive leaves the live data untouched.
+- **Everything is logged.** One structured JSON line per request (method,
+  path, status, duration, actor) — never headers or bodies.
 
 ## Repository layout
 
@@ -178,9 +187,75 @@ npm run lint        # ESLint (0 errors expected)
 npm test            # Vitest unit + component tests
 npx tsc --noEmit    # TypeScript typecheck
 npm run build       # Production build to dist/
+./scripts/secret-scan.sh   # fail on committed secrets (sk_live_*, etc.)
+node --test server/lib/auth.test.mjs server/evidence-vault/test/*.test.mjs scripts/test/backup-restore.test.mjs
 ```
 
-CI runs all four on every push to `main` and on pull requests.
+CI runs all of the above on every push to `main` and on pull requests.
+
+## Production hardening (UNI-8)
+
+### Auth & RBAC
+
+`server/lib/auth.mjs` implements bearer-token auth with two roles:
+`operator` (full data access) and `member` (reserved for the
+participant-facing surface). Keys are generated server-side
+(`openssl rand -hex 32`), configured via `UNITYLINK_OPERATOR_KEY` /
+`UNITYLINK_MEMBER_KEY`, and never committed. Protected routes return 401
+(no/invalid token), 403 (wrong role), or 503 (no keys configured — fail
+closed). Health endpoints stay public for monitoring.
+
+The SPA signs in at `/login` (`src/pages/Login.tsx`); the token is stored in
+`localStorage` and sent as `Authorization: Bearer` on every API call
+(`src/lib/auth.ts`).
+
+### Production server
+
+`server/production.mjs` serves the built SPA from `dist/` and proxies
+`/api/evidence/*`, `/api/control-plane/*`, and optionally `/api/fleet/*`
+(when `FLEET_UPSTREAM` is set). Public aggregate health at `/api/health`.
+
+```bash
+npm run build
+UNITYLINK_OPERATOR_KEY=<hex> \
+PROD_PORT=8080 \
+EVIDENCE_UPSTREAM=http://127.0.0.1:8788 \
+CONTROL_PLANE_UPSTREAM=http://127.0.0.1:8787 \
+node server/production.mjs
+```
+
+### Backups & restore
+
+`scripts/backup.sh` / `scripts/restore.sh` wrap the zero-dependency engine in
+`scripts/lib/backup.mjs` (system `tar` + SHA-256 manifest). Restore verifies
+the manifest before writing anything; a tampered archive is rejected and the
+live data is untouched.
+
+```bash
+./scripts/backup.sh            # → backups/uni8-<timestamp>.tar.gz
+./scripts/restore.sh <archive> # verify manifest, then restore
+```
+
+### Secrets
+
+`.env.example` documents every variable with placeholders. `scripts/secret-scan.sh`
+fails CI if a real secret pattern (e.g. `sk_live_*`) appears in tracked files.
+
+### Logging & monitoring
+
+`server/lib/log.mjs` emits structured JSON logs (`LOG_LEVEL`, default `info`).
+`scripts/monitor.mjs` polls health endpoints and prints one JSON status line
+per check; `MONITOR_ONCE=1` exits non-zero on failure for cron/CI use.
+
+```bash
+MONITOR_URLS=http://127.0.0.1:8080/api/health,http://127.0.0.1:8788/api/health \
+node scripts/monitor.mjs
+```
+
+### Incident response
+
+See `docs/ops/incident-response.md` — severity table, response procedure,
+restore runbook, backup schedule, and secret-management guidance.
 
 ## Preview deployment
 
@@ -193,7 +268,7 @@ URL is recorded on the issue that shipped it.
 - [x] [UNI-4] Evidence vault and audit history
 - [x] [UNI-6] Fleet & mobility operations (vehicle registry, bookings/subscriptions with operator approval, dispatch, mileage, inspections, maintenance, charging, incidents, payments, utilization, operating costs)
 - [ ] [UNI-5] Customer and member intake workflows
-- [ ] [UNI-8] Production hardening and deployment
+- [x] [UNI-8] Production hardening and deployment (auth + RBAC, tested backups, secrets, logging, incident response, monitored deployment)
 
 ## License / provenance
 

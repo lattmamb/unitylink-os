@@ -36,6 +36,12 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Secret scan
+        run: ./scripts/secret-scan.sh
+
+      - name: Server + backup/restore tests
+        run: node --test server/lib/auth.test.mjs server/evidence-vault/test/*.test.mjs scripts/test/backup-restore.test.mjs
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:

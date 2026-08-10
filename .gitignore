@@ -11,3 +11,5 @@ coverage/
 .worktrees/
 *.tsbuildinfo
 data/vault/
+data/*.db
+:memory:/
