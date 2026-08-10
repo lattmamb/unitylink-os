@@ -9,3 +9,5 @@ coverage/
 .vite/
 *.log
 .worktrees/
+*.tsbuildinfo
+data/vault/

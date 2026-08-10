@@ -19,9 +19,11 @@ frontend, the Paperclip control-plane bridge, and the engineering foundation
 ┌─────────────────────────────────────────────────────────────┐
 │  Browser / desktop / mobile web client                      │
 │  React 18 + TypeScript + Vite + Tailwind + shadcn/ui        │
-│  Routes: / (landing), /control-plane, /fleet, /booking, …   │
+│  Routes: / (landing), /control-plane, /evidence, /approvals,│
+│          /audit, /fleet, /booking, …                        │
 └───────────────┬─────────────────────────────────────────────┘
                 │  /api/control-plane/*  (dev proxy → :8787)
+                │  /api/evidence/*       (dev proxy → :8788)
 ┌───────────────▼─────────────────────────────────────────────┐
 │  server/control-plane.mjs  — read-only Paperclip bridge     │
 │  GET-only proxy; operator token stays server-side           │
@@ -32,6 +34,12 @@ frontend, the Paperclip control-plane bridge, and the engineering foundation
 │  companies · agents · goals · projects · issues · approvals │
 │  documents · work products · audit history                  │
 └─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│  server/evidence-vault/  — evidence & compliance layer      │
+│  SQLite + SHA-256 file vault · sources · citations ·        │
+│  approval gates · finance packet versioning · audit export  │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ### Layers
@@ -41,6 +49,8 @@ frontend, the Paperclip control-plane bridge, and the engineering foundation
 | Web app | `src/` | React SPA, responsive (mobile nav + desktop nav), Vite build |
 | Control-plane bridge | `server/control-plane.mjs` | Read-only GET proxy to the Paperclip API; token never shipped to the browser |
 | Control-plane client | `src/lib/control-plane.ts` | Typed client + status/time helpers used by the dashboard |
+| Evidence vault | `server/evidence-vault/` | SQLite-backed evidence & compliance layer: SHA-256 file vault, sources, citations, approval gates, finance packet versioning, audit export (JSON/CSV/Markdown) |
+| Evidence-vault client | `src/lib/evidence-vault.ts` | Typed client for the vault API, used by `/evidence`, `/approvals`, `/audit` pages |
 | UI kit | `src/components/ui/` | shadcn/ui components |
 | Tests | `src/**/*.test.ts(x)` | Vitest + Testing Library |
 | CI | `.github/workflows/ci.yml` | lint → test → typecheck → build on push/PR |
@@ -97,6 +107,32 @@ node server/control-plane.mjs
 Without the bridge, the app still runs; the control-plane page shows its
 unavailable state rather than fabricated data.
 
+### Evidence vault
+
+The evidence vault runs as a separate zero-dependency Node server on `:8788`.
+The dev server proxies `/api/evidence/*` to it (rewritten to `/api/*`).
+
+```bash
+EVIDENCE_PORT=8788 \
+EVIDENCE_DB=./data/evidence.db \
+EVIDENCE_VAULT_DIR=./data/vault \
+node server/evidence-vault/api.mjs
+```
+
+Endpoints: `/api/health`, `/api/evidence` (POST/GET), `/api/evidence/:id`,
+`/api/evidence/:id/provenance`, `/api/sources`, `/api/evidence/:id/citations`,
+`/api/approvals`, `/api/approvals/:id/decision`, `/api/actions/execute`,
+`/api/packets`, `/api/packets/:id/versions`, `/api/audit/export?format=…`.
+
+Gated action types (`contract`, `payment`, `legal_conclusion`,
+`external_submission`, `destructive_change`) refuse execution until a human
+approval is recorded. Every mutation writes an `audit_events` row; the audit
+trail exports as JSON, CSV, or Markdown. Run the server tests with:
+
+```bash
+node --test "server/evidence-vault/test/*.test.mjs"
+```
+
 ## Quality gates
 
 ```bash
@@ -116,9 +152,9 @@ URL is recorded on the issue that shipped it.
 
 ## Roadmap (tracked in Paperclip)
 
-- [UNI-4] Evidence vault and audit history
-- [UNI-5] Customer and member intake workflows
-- [UNI-8] Production hardening and deployment
+- [x] [UNI-4] Evidence vault and audit history
+- [ ] [UNI-5] Customer and member intake workflows
+- [ ] [UNI-8] Production hardening and deployment
 
 ## License / provenance
 
