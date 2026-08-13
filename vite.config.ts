@@ -7,6 +7,7 @@ export default defineConfig(() => ({
   server: {
     host: "::",
     port: 8080,
+    allowedHosts: [".trycloudflare.com"],
     proxy: {
       "/api/control-plane": {
         target: "http://127.0.0.1:8787",
