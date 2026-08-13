@@ -16,6 +16,8 @@ FILES="$(git ls-files)"
 if [[ "${1:-}" == "--all" ]]; then
   FILES="$(git ls-files --others --exclude-standard; git ls-files)"
 fi
+# Never scan the scanner itself: its pattern table is a legitimate match target.
+FILES="$(printf '%s\n' "$FILES" | grep -v '^scripts/secret-scan.sh$')"
 
 PATTERNS=(
   'AKIA[0-9A-Z]{16}'                       # AWS access key id
@@ -27,8 +29,8 @@ PATTERNS=(
   'xox[baprs]-[A-Za-z0-9-]{10,}'           # Slack tokens
   'AIza[0-9A-Za-z_-]{35}'                  # Google API key
   '-----BEGIN PGP PRIVATE KEY'
-  'PAPERCLIP_API_KEY\s*=\s*[^<"'"'"' ]{16,}' # leaked env assignment (real value, not <placeholder>)
-  'UNITYLINK_OPERATOR_KEY\s*=\s*[^<"'"'"' ]{16,}'
+  'PAPERCLIP_API_KEY\s*=\s*(?!<|change-me-)[^"'"'"' ]{16,}' # leaked env assignment (real value, not placeholder)
+  'UNITYLINK_OPERATOR_KEY\s*=\s*(?!<|change-me-)[^"'"'"' ]{16,}'
 )
 
 MATCHES=0
