@@ -1,0 +1,96 @@
+schema_version: "1.0"
+registry_status: "initial-review-required"
+source_of_truth: "lattmamb/unitylink-os"
+modules:
+  - module_id: core.unitylink-os
+    repository: lattmamb/unitylink-os
+    role: canonical-domain-platform
+    status: active-in-repository
+    owns: [fleet_records, bookings, subscriptions, evidence_records, approval_records, operational_audit]
+    integration: native
+    notes: "Repository README documents SQLite-backed evidence-vault and fleet-mobility services; verify routes and deployment before treating runtime state as live."
+
+  - module_id: orchestration.paperclip
+    repository: lattmamb/paperclip
+    role: agent-task-orchestration
+    status: candidate
+    owns: [agent_assignments, goals, orchestration_tasks, orchestration_budgets, task_history]
+    integration: existing-read-only-bridge-plus-future-adapter
+    notes: "Fork is a separate snapshot of upstream. Pin commit and compare drift before upgrading or patching."
+
+  - module_id: ui.mobility-aether
+    repository: lattmamb/aether-ride-vision
+    role: mobility-customer-ui-candidate
+    status: candidate
+    integration: api-adapter-required
+    notes: "README references Lovable project d76e7d47-4679-4596-bf68-1bfffa791dee. Audit current routes and booking flow."
+
+  - module_id: ui.mobility-blitz
+    repository: lattmamb/blitz-rides
+    role: mobility-ui-overlap-candidate
+    status: compare-before-use
+    integration: source-diff-required
+    notes: "Earlier README sampling suggested same Lovable project ID as aether-ride-vision; verify actual tree/commit overlap."
+
+  - module_id: ui.unity-app
+    repository: lattmamb/Unity-APP
+    role: customer-app-candidate
+    status: compare-before-use
+    integration: api-adapter-required
+    notes: "README references Lovable project fa314406-a94b-495f-93d0-93f5073e8084."
+
+  - module_id: ui.unity2
+    repository: lattmamb/unity2
+    role: app-ui-overlap-candidate
+    status: compare-before-use
+    integration: source-diff-required
+    notes: "Earlier README sampling suggested same Lovable project ID as Unity-APP; verify actual tree/commit overlap."
+
+  - module_id: runtime.agent-zero
+    repository: lattmamb/agent-zero
+    role: optional-agent-runtime
+    status: candidate
+    integration: runtime-adapter
+    notes: "Isolate workspace, credentials and tool grants; benchmark with a capability."
+
+  - module_id: runtime.suna
+    repository: lattmamb/suna
+    role: optional-agent-platform
+    status: candidate
+    integration: runtime-adapter
+    notes: "Alternative to benchmark, not an additional task authority by default."
+
+  - module_id: dev.repomix
+    repository: lattmamb/repomix
+    role: repository-context-packaging
+    status: candidate
+    integration: developer-tool
+    notes: "Use secret-aware configuration and review output before sharing context."
+
+  - module_id: model.litellm
+    repository: lattmamb/litellm
+    role: model-routing
+    status: optional
+    integration: model-adapter
+    notes: "Adopt only if multi-provider routing is required; enforce provider allowlists and budgets."
+
+  - module_id: tools.browser-automation
+    repository: lattmamb/browser-ai
+    role: browser-runtime-candidate
+    status: candidate
+    integration: tool-adapter
+    notes: "Sandbox browser actions, allowlist domains and require approval for consequential actions."
+
+  - module_id: data.supabase
+    repository: lattmamb/supabase
+    role: database-platform-reference
+    status: evaluate-not-merge
+    integration: migration-or-service-boundary
+    notes: "Do not merge this large upstream-style repository into UnityLink; decide whether services are needed before introducing a second persistence model."
+
+  - module_id: billing.nextjs-subscription-payments
+    repository: lattmamb/nextjs-subscription-payments
+    role: billing-reference
+    status: evaluate-not-merge
+    integration: payment-adapter
+    notes: "Do not claim connected billing until webhooks, idempotency, refunds and ledger reconciliation are implemented and tested."
