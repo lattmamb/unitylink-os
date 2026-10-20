@@ -1,0 +1,88 @@
+schema_version: "1.0"
+status: "proposed-selection-not-runtime-wiring"
+canonical_repository: "lattmamb/unitylink-os"
+selection_rule: "One authority per domain; many replaceable implementations behind contracts."
+
+layers:
+  - id: governance
+    order: 0
+    authority: "lattmamb/unitylink-os"
+    responsibilities: [identity, authorization, approvals, secrets, provenance, audit]
+    repositories: ["lattmamb/unitylink-os"]
+    policy: "All modules inherit the same policy boundary; no runtime bypass."
+
+  - id: canonical_domain
+    order: 1
+    authority: "lattmamb/unitylink-os"
+    responsibilities: [vehicles, bookings, subscriptions, evidence, operational_records]
+    repositories: ["lattmamb/unitylink-os"]
+    policy: "One authoritative record per business entity; external systems use IDs and adapters."
+
+  - id: orchestration
+    order: 2
+    authority: "lattmamb/paperclip"
+    responsibilities: [task_assignment, dependencies, goals, budgets, task_history]
+    alternatives: ["lattmamb/agent-zero", "lattmamb/suna", "lattmamb/agent-gpt", "lattmamb/crewAI", "lattmamb/PraisonAI", "lattmamb/OpenManus", "lattmamb/SuperAGI", "lattmamb/smolagents"]
+    policy: "Paperclip is the proposed default coordinator; alternatives are benchmarks or specialized workers, not parallel authorities."
+
+  - id: capability_contracts
+    order: 3
+    authority: "lattmamb/unitylink-os"
+    responsibilities: [instructions, input_schemas, output_schemas, permissions, acceptance_tests]
+    repositories: ["lattmamb/unitylink-os"]
+    policy: "Capabilities are portable; runtime and model are replaceable."
+
+  - id: execution_adapters
+    order: 4
+    responsibilities: [agent_execution, model_routing, browser_automation, computer_use, mcp_tools]
+    candidates:
+      agent_runtime: ["lattmamb/agent-zero", "lattmamb/suna", "lattmamb/agent-gpt", "lattmamb/crewAI", "lattmamb/PraisonAI", "lattmamb/OpenManus", "lattmamb/SuperAGI", "lattmamb/smolagents"]
+      model_routing: ["lattmamb/litellm"]
+      model_interfaces_or_local_inference: ["lattmamb/open-webui", "lattmamb/anything-llm", "lattmamb/text-generation-webui", "lattmamb/self-llm"]
+      browser_computer: ["lattmamb/browser-ai", "lattmamb/nanobrowser", "lattmamb/Web-Agent", "lattmamb/mcp-server-macos-use"]
+      tool_protocol: ["lattmamb/servers", "lattmamb/mcp-containers", "lattmamb/aci"]
+      repository_context: ["lattmamb/repomix"]
+    policy: "Candidate only. Pin versions, isolate credentials, use least privilege, log actions, and benchmark before selection."
+
+  - id: domain_specialists
+    order: 5
+    responsibilities: [mobility_ui, navigation, fleet_analytics, billing, crm_erp, energy_hardware]
+    candidates:
+      mobility_customer_ui_lineage_a: ["lattmamb/aether-ride-vision", "lattmamb/blitz-rides"]
+      mobility_customer_ui_lineage_b: ["lattmamb/Unity-APP", "lattmamb/unity2", "lattmamb/boltuni"]
+      fleet_navigation_analytics: ["lattmamb/fleetly-autonomous-navi", "lattmamb/RideVision"]
+      billing_reference: ["lattmamb/nextjs-subscription-payments"]
+      crm_erp: ["lattmamb/twenty", "lattmamb/odoo", "lattmamb/metasfresh"]
+      persistence_auth_option: ["lattmamb/supabase"]
+      energy_hardware_research: ["lattmamb/Battery-Emulator"]
+    policy: "Integrate through UnityLink APIs. UI lineage candidates are possible duplicates until source diffs confirm distinct value. Do not merge entire upstream repositories wholesale."
+
+  - id: experiences
+    order: 6
+    authority: "lattmamb/unitylink-os"
+    responsibilities: [customer_experience, operator_console, evidence_review, finance_workflows]
+    policy: "Selected reusable UI components connect to canonical APIs; presentation state is not business truth."
+
+  - id: observability_and_evaluation
+    order: 7
+    authority: "lattmamb/unitylink-os"
+    responsibilities: [test_results, source_provenance, quality_metrics, cost_metrics, failure_records, regression_checks]
+    policy: "Every integrated capability must have measurable acceptance criteria and traceable outputs."
+
+defer_or_reference_only:
+  repositories:
+    - "lattmamb/GenAI_Agents"
+    - "lattmamb/awesome-llm-apps"
+    - "lattmamb/awesome-nocode-lowcode"
+    - "lattmamb/system-prompts-and-models-of-ai-tools"
+  reason: "Discovery/reference sources, not runtime dependencies."
+
+integration_gates:
+  - ancestry_and_local_delta_review
+  - license_and_dependency_review
+  - source_level_security_review
+  - typed_input_output_contract
+  - permission_manifest
+  - failure_retry_idempotency_tests
+  - evidence_and_audit_verification
+  - measurable_incremental_value
